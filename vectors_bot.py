@@ -1,16 +1,15 @@
-from os import getenv
-from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from io import BytesIO
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
+from PIL import Image
+from vectors import draw_vectors_bot
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils import executor
-import asyncio
-from vectors import draw_vectors_bot
+from main import token
 
-from vectors import draw_vectors_bot
-
-bot = Bot(token=getenv('API_TOKEN'))
+bot = Bot(token=token)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
@@ -19,9 +18,7 @@ dp = Dispatcher(bot, storage=storage)
 class Form(StatesGroup):
     diagrams_chart = State()
     voltages_check = State()
-    angles_1 = State()
-    angles_2 = State()
-    angles_3 = State()
+    angles = State()
 
 
 start_buttons = ['Начать', 'Отмена']
@@ -75,12 +72,12 @@ async def voltages_check(message: types.Message, state: FSMContext):
     else:
         angles = {voltage: [] for voltage in voltages}
         await state.update_data(voltages=voltages, angles=angles)
-        await Form.angles_1.set()
+        await Form.angles.set()
         await message.answer('Направление C принимается за положительное, направление L за отрицательное')
         await message.reply(f'Введите углы стороны {voltages[0]}кВ через пробел')
 
 
-@dp.message_handler(state=Form.angles_1)
+@dp.message_handler(state=Form.angles)
 async def get_voltages(message: types.Message, state: FSMContext):
     data = await state.get_data()
     voltages = data.get('voltages')
@@ -105,19 +102,25 @@ async def get_voltages(message: types.Message, state: FSMContext):
                 await message.reply(f'Введите углы стороны {voltages[0]}кВ через пробел')
             else:
                 await state.update_data(angles=angles)
-                # await Form.angles_2.set()
-                # await finish(message, state)
+
                 async with state.proxy() as data:
-                    data['diagram'] = asyncio.run(draw_vectors_bot(data.get('angles')))
-                    await bot.send_photo(message.chat.id, data.get('diagram'))
-                    # data['diagram'].seek(0)
-                    # await bot.send_photo(message.chat.id, data.get('diagram'))
-                    # await bot.send_message(message.chat.id, data)
+                    data['diagram'] = draw_vectors_bot(data.get('angles'))
+
+                    image = data.get('diagram')
+                    pil_image = Image.fromarray(image)
+                    bio = BytesIO()
+                    bio.name = 'temp.jpg'
+                    pil_image.save(bio)
+                    bio.seek(0)
+
+                    await bot.send_photo(message.chat.id, bio)
+
+                await state.finish()
+
     except Exception as ex:
-        pass
-    finally:
         await state.finish()
+        print(ex)
 
 
-if __name__ == '__main__':
+def start_polling():
     executor.start_polling(dp, skip_updates=True)
