@@ -1,1 +1,7 @@
-API_TOKEN = '2134368050:AAFaP5e_XY3C4Iwi6kRkfT5lxUwMfN8uVuA'
+from os import getenv
+import vectors_bot
+
+token = getenv('API_TOKEN')
+
+if __name__ == '__main__':
+    vectors_bot.start_polling()

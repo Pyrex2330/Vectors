@@ -1,36 +1,7 @@
 import matplotlib.pyplot as plt
 from math import radians, sin, cos
-import asyncio
 import numpy as np
-from PIL import Image
 
-
-# def draw_vectors(voltages, angles: dict):
-#     colors, scales = ['r', 'g', 'b'], [0.18, 0.14, 0.1]
-#
-#     for voltage, color, scale in zip(voltages, colors, scales):
-#         angle_a, angle_b, angle_c = angles[voltage]
-#         angle_a, angle_b, angle_c = int(angle_a), int(angle_b), int(angle_c)
-#
-#
-#         plt.xlim(-10, 10)
-#         plt.ylim(-10, 10)
-#
-#         aligment_a = 'right' if angle_a in range(150, 290) else 'left'
-#         aligment_b = 'right' if angle_b in range(150, 290) else 'left'
-#         aligment_c = 'right' if angle_c in range(150, 290) else 'left'
-#
-#         plt.quiver(0, 0, cos(radians(angle_a)), sin(radians(angle_a)), scale_units='xy', angles='xy', scale=scale,
-#                    color=color)
-#         plt.text(cos(radians(angle_a)) / scale, sin(radians(angle_a)) / scale, s=f'Ia{voltage}', ha=aligment_a)
-#         plt.quiver(0, 0, cos(radians(angle_b)), sin(radians(angle_b)), scale_units='xy', angles='xy', scale=scale,
-#                    color=color)
-#         plt.text(cos(radians(angle_b)) / scale, sin(radians(angle_b)) / scale, s=f'Ib{voltage}', ha=aligment_b)
-#         plt.quiver(0, 0, cos(radians(angle_c)), sin(radians(angle_c)), scale_units='xy', angles='xy', scale=scale,
-#                    color=color)
-#         plt.text(cos(radians(angle_c)) / scale, sin(radians(angle_c)) / scale, s=f'Ic{voltage}', ha=aligment_c)
-#
-#     return plt
 
 async def draw_vectors():
     fig, ax = plt.subplots()
@@ -54,13 +25,20 @@ def draw_vectors_bot(angles: dict):
     colors, scales = ['r', 'g', 'b'], [0.18, 0.14, 0.1]
     fig, ax = plt.subplots()
 
-    for voltage, color, scale in zip(angles.keys(), colors, scales):
+    angles_sorted = sorted(angles, key=lambda x: x, reverse=True)
+    for voltage, color, scale in zip(angles_sorted, colors, scales):
         angle_a, angle_b, angle_c = angles[voltage]
-
-        rotation_check(angle_a, angle_b, angle_c)
 
         plt.xlim(-10, 10)
         plt.ylim(-10, 10)
+        plt.grid()
+        plt.gca().yaxis.set_ticks_position('right')
+        x_ticks = [0]
+        x_label = ['-90']
+        plt.xticks(ticks=x_ticks, labels=x_label)
+        y_ticks = [0]
+        y_label = ['0']
+        plt.yticks(ticks=y_ticks, labels=y_label)
 
         aligment_a = 'right' if angle_a in range(150, 290) else 'left'
         aligment_b = 'right' if angle_b in range(150, 290) else 'left'
@@ -124,13 +102,3 @@ def rotation_check(angle_a, angle_b, angle_c):
             flag = True
 
     return flag
-
-
-def main():
-    image = asyncio.run(draw_vectors())
-    pil_image = Image.fromarray(image)
-    pil_image.save('!!!!.jpg')
-
-
-if __name__ == '__main__':
-    main()
