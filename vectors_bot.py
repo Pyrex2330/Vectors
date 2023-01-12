@@ -58,6 +58,7 @@ async def charts_valid(message: types.Message, state: FSMContext):
     await state.update_data(counter=int(message.text))
     await Form.voltages_check.set()
     await message.reply('Введите напряжения сторон (кВ) через пробел')
+    await bot.send_message(message.chat.id, 'Пример ввода:\n110 35 10')
 
 
 @dp.message_handler(state=Form.voltages_check)
@@ -75,6 +76,7 @@ async def voltages_check(message: types.Message, state: FSMContext):
         await Form.angles.set()
         await message.answer('Направление C принимается за положительное, направление L за отрицательное')
         await message.reply(f'Введите углы стороны {voltages[0]}кВ через пробел')
+        await bot.send_message(message.chat.id, 'Привер ввода:\n0 -120 120')
 
 
 @dp.message_handler(state=Form.angles)
