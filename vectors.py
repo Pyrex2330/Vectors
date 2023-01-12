@@ -3,24 +3,6 @@ from math import radians, sin, cos
 import numpy as np
 
 
-async def draw_vectors():
-    fig, ax = plt.subplots()
-
-    plt.xlim(-10, 10)
-    plt.ylim(-10, 10)
-
-    plt.quiver(0, 0, cos(radians(0)), sin(radians(0)), scale_units='xy', angles='xy', scale=0.18,
-               color='r')
-
-    fig.canvas.draw()
-    image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
-    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-
-    plt.close(fig)
-
-    return image
-
-
 def draw_vectors_bot(angles: dict):
     colors, scales = ['r', 'g', 'b'], [0.18, 0.14, 0.1]
     fig, ax = plt.subplots()

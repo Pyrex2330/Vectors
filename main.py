@@ -1,7 +1,10 @@
-from os import getenv
 import vectors_bot
+import os
+from dotenv import load_dotenv
 
-token = getenv('API_TOKEN')
+load_dotenv()
+
+token = str(os.getenv('API_TOKEN'))
 
 if __name__ == '__main__':
     vectors_bot.start_polling()
