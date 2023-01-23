@@ -55,10 +55,16 @@ async def charts_invalid(message: types.Message):
 
 @dp.message_handler(state=Form.diagrams_chart)
 async def charts_valid(message: types.Message, state: FSMContext):
-    await state.update_data(counter=int(message.text))
+    counter = int(message.text)
+    await state.update_data(counter=counter)
     await Form.voltages_check.set()
     await message.reply('Введите напряжения сторон (кВ) через пробел')
-    await bot.send_message(message.chat.id, 'Пример ввода:\n110 35 10')
+    if counter == 1:
+        await bot.send_message(message.chat.id, 'Пример ввода:\n110')
+    elif counter == 2:
+        await bot.send_message(message.chat.id, 'Пример ввода:\n110 35')
+    elif counter == 3:
+        await bot.send_message(message.chat.id, 'Пример ввода:\n110 35 10')
 
 
 @dp.message_handler(state=Form.voltages_check)
